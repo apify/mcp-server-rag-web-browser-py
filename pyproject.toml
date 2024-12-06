@@ -1,0 +1,17 @@
+[project]
+name = "mcp-server-rag-web-browser"
+version = "0.1.0"
+description = "A MCP Server for the RAG Web Browser Actor"
+readme = "README.md"
+requires-python = ">=3.11.3"
+dependencies = [ "mcp>=1.1.0",]
+[[project.authors]]
+name = "Jiri Spilka"
+email = "jiri.spilka@apify.com"
+
+[build-system]
+requires = [ "hatchling",]
+build-backend = "hatchling.build"
+
+[project.scripts]
+mcp-server-rag-web-browser = "mcp_server_rag_web_browser:main"
