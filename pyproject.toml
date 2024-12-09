@@ -13,5 +13,10 @@ email = "jiri.spilka@apify.com"
 requires = [ "hatchling",]
 build-backend = "hatchling.build"
 
+[dependency-groups]
+dev = [
+    "ruff>=0.8.2",
+]
+
 [project.scripts]
 mcp-server-rag-web-browser = "mcp_server_rag_web_browser:main"
