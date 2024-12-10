@@ -78,11 +78,8 @@ Find and analyze recent research papers about LLMs.
 ### Local Development
 
 If you're working on an unpublished server, you can access the local server via the `uv` command:
-
-<details>
-  <summary>Local Servers Configuration</summary>
-  ```
-  "mcpServers": {
+```text
+"mcpServers": {
     "mcp-server-rag-web-browser": {
       "command": "uv",
       "args": [
@@ -92,9 +89,8 @@ If you're working on an unpublished server, you can access the local server via 
         "mcp-server-rag-web-browser"
       ]
     }
-  }
-  ```
-</details>
+}
+```
 
 ### Local client
 
