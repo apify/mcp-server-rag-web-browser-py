@@ -48,29 +48,29 @@ Configure Claude Desktop to recognize the MCP server.
    - On MacOS: `~/Library/Application\ Support/Claude/claude_desktop_config.json`
    - On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
 
-```text
-"mcpServers": {
-  "mcp-server-rag-web-browser": {
-    "command": "uvx",
-    "args": [
-      "mcp-server-rag-web-browser"
-    ]
-  }
-}
-```
+    ```text
+    "mcpServers": {
+      "mcp-server-rag-web-browser": {
+        "command": "uvx",
+        "args": [
+          "mcp-server-rag-web-browser"
+        ]
+      }
+    }
+    ```
 
 2. Restart Claude Desktop  
-- Fully quit Claude Desktop (ensure it’s not just minimized or closed).  
-- Restart Claude Desktop.  
-- Look for the 🔌 icon to confirm that the Exa server is connected.  
+    - Fully quit Claude Desktop (ensure it’s not just minimized or closed).  
+    - Restart Claude Desktop.  
+    - Look for the 🔌 icon to confirm that the Exa server is connected.  
 
 3. Examples  
 
-You can ask Claude to perform web searches, such as:  
-```text
-What is an MPC server and how can it be used?  
-What is an LLM, and what are the recent news updates?  
-Find and analyze recent research papers about LLMs.  
+    You can ask Claude to perform web searches, such as:  
+    ```text
+    What is an MPC server and how can it be used?  
+    What is an LLM, and what are the recent news updates?  
+    Find and analyze recent research papers about LLMs.  
 ```  
 
 ## Development
