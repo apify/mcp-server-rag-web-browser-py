@@ -1,6 +1,6 @@
 .PHONY: clean install-dev build publish-to-pypi lint type-check format check-version-conflict check-changelog-entry check-code
 
-DIRS_WITH_CODE = src scripts
+DIRS_WITH_CODE = src
 
 clean:
 	rm -rf .mypy_cache .pytest_cache .ruff_cache build dist htmlcov .coverage

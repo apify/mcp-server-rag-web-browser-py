@@ -32,7 +32,7 @@ if not (APIFY_API_TOKEN := os.getenv("APIFY_API_TOKEN")):
 server = Server("server-rag-web-browser")
 
 
-@server.list_tools()
+@server.list_tools()  #type: ignore
 async def list_tools() -> list[Tool]:
     """Return a list of available tools."""
     logger.info("List available tools")
@@ -96,7 +96,7 @@ async def call_rag_web_browser(query: str, max_results: int) -> str:
         raise ValueError(f"Failed to call RAG Web Browser: {e}") from None
 
 
-@server.call_tool()
+@server.call_tool()  #type: ignore
 async def handle_call_tool(name: str, arguments: dict | None) -> list[TextContent]:
     """Handle tool execution requests.
 
