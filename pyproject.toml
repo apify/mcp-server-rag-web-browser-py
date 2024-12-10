@@ -45,10 +45,10 @@ keywords = [
 # https://github.com/apify/apify-sdk-python/pull/154.
 [tool.poetry.dependencies]
 python = "^3.10"
-apify-client = "^1.7.1"
 python-dotenv = "^1.0.1"
 pydantic = "^2.10.3"
 mcp = "^1.1.0"
+httpx = "^0.28.1"
 
 [tool.poetry.group.dev.dependencies]
 build = "~1.2.0"

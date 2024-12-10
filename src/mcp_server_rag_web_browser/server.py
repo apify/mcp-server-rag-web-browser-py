@@ -1,164 +1,140 @@
 import asyncio
+import logging
+import os
+import urllib
 
-from mcp.server.models import InitializationOptions
-import mcp.types as types
-from mcp.server import NotificationOptions, Server
-from pydantic import AnyUrl
-import mcp.server.stdio
+import httpx
+from dotenv import load_dotenv
+from mcp.server import Server
+from mcp.types import TextContent, Tool
 
-# Store notes as a simple key-value dict to demonstrate state management
-notes: dict[str, str] = {}
+load_dotenv()
 
-server = Server("mcp-server-rag-web-browser")
+logging.basicConfig(level=logging.INFO, format="%(asctime)sZ %(levelname)s  %(name)s: %(message)s", datefmt="%Y-%m-%dT%H:%M:%S")
+logger = logging.getLogger("apify")
 
-@server.list_resources()
-async def handle_list_resources() -> list[types.Resource]:
-    """
-    List available note resources.
-    Each note is exposed as a resource with a custom note:// URI scheme.
-    """
-    return [
-        types.Resource(
-            uri=AnyUrl(f"note://internal/{name}"),
-            name=f"Note: {name}",
-            description=f"A simple note named {name}",
-            mimeType="text/plain",
-        )
-        for name in notes
-    ]
+ACTOR_BASE_URL = "https://rag-web-browser.apify.actor/search"  # Base URL from OpenAPI schema
 
-@server.read_resource()
-async def handle_read_resource(uri: AnyUrl) -> str:
-    """
-    Read a specific note's content by its URI.
-    The note name is extracted from the URI host component.
-    """
-    if uri.scheme != "note":
-        raise ValueError(f"Unsupported URI scheme: {uri.scheme}")
+TOOL_SEARCH = "search"
+MAX_RESULTS = 1
+TIMEOUT = 45
 
-    name = uri.path
-    if name is not None:
-        name = name.lstrip("/")
-        return notes[name]
-    raise ValueError(f"Note not found: {name}")
+# Prepare the API key
+if not (APIFY_API_TOKEN := os.getenv("APIFY_API_TOKEN")):
+    logger.error("APIFY_API_TOKEN environment variable not found")
+    raise ValueError("APIFY_API_TOKEN environment variable required. Please set it in the .env file.")
 
-@server.list_prompts()
-async def handle_list_prompts() -> list[types.Prompt]:
-    """
-    List available prompts.
-    Each prompt can have optional arguments to customize its behavior.
-    """
-    return [
-        types.Prompt(
-            name="summarize-notes",
-            description="Creates a summary of all notes",
-            arguments=[
-                types.PromptArgument(
-                    name="style",
-                    description="Style of the summary (brief/detailed)",
-                    required=False,
-                )
-            ],
-        )
-    ]
-
-@server.get_prompt()
-async def handle_get_prompt(
-    name: str, arguments: dict[str, str] | None
-) -> types.GetPromptResult:
-    """
-    Generate a prompt by combining arguments with server state.
-    The prompt includes all current notes and can be customized via arguments.
-    """
-    if name != "summarize-notes":
-        raise ValueError(f"Unknown prompt: {name}")
-
-    style = (arguments or {}).get("style", "brief")
-    detail_prompt = " Give extensive details." if style == "detailed" else ""
-
-    return types.GetPromptResult(
-        description="Summarize the current notes",
-        messages=[
-            types.PromptMessage(
-                role="user",
-                content=types.TextContent(
-                    type="text",
-                    text=f"Here are the current notes to summarize:{detail_prompt}\n\n"
-                    + "\n".join(
-                        f"- {name}: {content}"
-                        for name, content in notes.items()
-                    ),
-                ),
-            )
-        ],
-    )
+# Prepare the server
+server = Server("server-rag-web-browser")
 
 @server.list_tools()
-async def handle_list_tools() -> list[types.Tool]:
-    """
-    List available tools.
-    Each tool specifies its arguments using JSON Schema validation.
-    """
-    return [
-        types.Tool(
-            name="add-note",
-            description="Add a new note",
+async def list_tools() -> list[Tool]:
+    """Return a list of available tools."""
+    logger.info("List available tools")
+    tools = [
+        Tool(
+            name=TOOL_SEARCH,
+            description="Search phrase or a URL at google and return crawled web pages as text or Markdown",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "name": {"type": "string"},
-                    "content": {"type": "string"},
+                    "query": {
+                        "type": "string",
+                        "description": "Google Search keywords or a URL of a specific web page"
+                    },
+                    "maxResults": {
+                        "type": "number",
+                        "description": "The maximum number of top organic Google Search results whose web pages will be extracted",
+                        "default": MAX_RESULTS
+                    }
                 },
-                "required": ["name", "content"],
-            },
+                "required": ["query"]
+            }
         )
     ]
+    logger.debug(f"Returning tools: {tools}")
+    return tools
 
-@server.call_tool()
-async def handle_call_tool(
-    name: str, arguments: dict | None
-) -> list[types.TextContent | types.ImageContent | types.EmbeddedResource]:
-    """
-    Handle tool execution requests.
-    Tools can modify server state and notify clients of changes.
-    """
-    if name != "add-note":
-        raise ValueError(f"Unknown tool: {name}")
+def handle_input_arguments(name: str, arguments: dict | None) -> tuple[str, int]:
+    """Extract and validate input arguments."""
+    if name != TOOL_SEARCH:
+        raise ValueError(f"Error: Unsupported tool requested: '{name}'. Only {TOOL_SEARCH} is supported.")
 
     if not arguments:
-        raise ValueError("Missing arguments")
+        raise ValueError("Error: No arguments provided. Expected 'query' argument.")
 
-    note_name = arguments.get("name")
-    content = arguments.get("content")
+    if not isinstance(arguments, dict):
+        raise ValueError("Error: Invalid arguments. Expected a dictionary.")
 
-    if not note_name or not content:
-        raise ValueError("Missing name or content")
+    if not (query := arguments.get("query")):
+        raise ValueError("Error: Missing 'query' argument.")
 
-    # Update server state
-    notes[note_name] = content
+    return query, arguments.get("maxResults", MAX_RESULTS)
 
-    # Notify clients that resources have changed
-    await server.request_context.session.send_resource_list_changed()
+async def call_rag_web_browser(query: str, max_results: int) -> str:
+    """Call the RAG Web Browser actor and return the results."""
+    query_params = {"query": query, "maxResults": max_results}
+    headers = {"Authorization": f"Bearer {APIFY_API_TOKEN}"}
 
-    return [
-        types.TextContent(
-            type="text",
-            text=f"Added note '{note_name}' with content: {content}",
-        )
-    ]
+    try:
+        url = f"{ACTOR_BASE_URL}?{urllib.parse.urlencode(query_params)}"
+        logger.info(f"Calling RAG Web Browser: {url}")
 
+        async with httpx.AsyncClient(timeout=TIMEOUT) as client:
+            response = await client.get(url, headers=headers)
+            response_body = json.dumps(response.json())
+            logger.info("Received response from RAG Web Browser: %s", response_body)
+            return response_body
+    except httpx.TimeoutException as e:
+        raise TimeoutError(f"RAG Web Browser request timed out: {e}")
+    except Exception as e:
+        raise ValueError(f"Failed to call RAG Web Browser: {e}")
+
+
+@server.call_tool()
+async def handle_call_tool( name: str, arguments: dict | None ) -> list[TextContent]:
+    """Handle tool execution requests.
+    Tools can modify server state and notify clients of changes.
+    """
+    try:
+        query, max_results = handle_input_arguments(name, arguments)
+    except Exception as e:
+        logger.error(f"Tool call failed: {e!s}")
+        return [TextContent(type="text", text=f"Error: {e!s}")]
+
+    try:
+        response = await call_rag_web_browser(query, max_results)
+        return [TextContent(type="text", text=response)]
+    except Exception as e:
+        logger.error(e)
+        return [TextContent(type="text", text=f"Error: {e!s}")]
+
+
+# Main execution part
 async def main():
-    # Run the server using stdin/stdout streams
-    async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
-        await server.run(
-            read_stream,
-            write_stream,
-            InitializationOptions(
-                server_name="mcp-server-rag-web-browser",
-                server_version="0.1.0",
-                capabilities=server.get_capabilities(
-                    notification_options=NotificationOptions(),
-                    experimental_capabilities={},
-                ),
-            ),
-        )
+    logger.info("Starting RAG Web Browser server")
+    try:
+        from mcp.server.stdio import stdio_server
+
+        async with stdio_server() as (read_stream, write_stream):
+            logger.info("Server started")
+            await server.run(
+                read_stream,
+                write_stream,
+                server.create_initialization_options()
+            )
+
+    except Exception as e:
+        logger.error(f"Server failed to start: {e!s}", exc_info=True)
+        raise
+
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+        # asyncio.run(call_rag_web_browser("web browser for Antrophic", 1))
+    except KeyboardInterrupt:
+        logger.info("Server shutdown requested")
+    except Exception as e:
+        logger.error(f"Server error: {e}", exc_info=True)
+        raise
