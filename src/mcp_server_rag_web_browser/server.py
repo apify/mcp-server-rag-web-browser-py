@@ -39,7 +39,7 @@ async def list_tools() -> list[Tool]:
     tools = [
         Tool(
             name=TOOL_SEARCH,
-            description="Search phrase or a URL at google and return crawled web pages as text or Markdown",
+            description="Search phrase or a URL at Google and return crawled web pages as text or Markdown",
             inputSchema={
                 "type": "object",
                 "properties": {

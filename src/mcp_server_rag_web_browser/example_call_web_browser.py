@@ -1,4 +1,4 @@
-"""This is an example of calling the RAG Web Browser actor."""
+"""Example of calling the RAG Web Browser actor."""
 
 import json
 import os

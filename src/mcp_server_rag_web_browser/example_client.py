@@ -1,3 +1,5 @@
+"""Example of calling the MCP server with the RAG Web Browser tool."""
+
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
