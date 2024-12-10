@@ -1,30 +1,41 @@
-# MCP Server for the RAG Web Browser Actor
+# Model Context Protocol (MCP) Server for the RAG Web Browser Actor 🌐
 
-## Components
+Implementation of an MCP server for the [RAG Web Browser Actor](https://apify.com/apify/rag-web-browser).
+This Actor serves as a web browser for large language models (LLMs) and RAG pipelines, similar to a web search in ChatGPT. 
 
-### Resources
+## 🔄 What is model context protocol?
 
-The server implements a simple note storage system with:
-- Custom note:// URI scheme for accessing individual notes
-- Each note resource has a name, description and text/plain mimetype
+The Model Context Protocol (MCP) allows AI applications (and AI agents), such as Claude Desktop, to connect to external tools and data sources.
+MCP is an open protocol that enables secure, controlled interactions between AI applications and local or remote resources
 
-### Prompts
+## 🎯 What does this MCP server do?
 
-The server provides a single prompt:
-- summarize-notes: Creates summaries of all stored notes
-  - Optional "style" argument to control detail level (brief/detailed)
-  - Generates prompt combining all current notes with style preference
+The RAG Web Browser Actor allows AI assistant:
+- Perform web search, scrape the top N URLs from the results, and return their cleaned content as Markdown
+- Return the cleaned content of a URL as Markdown
+
+## 🧱 Components
 
 ### Tools
 
-The server implements one tool:
-- add-note: Adds a new note to the server
-  - Takes "name" and "content" as required string arguments
-  - Updates server state and notifies clients of resource changes
+The server implements web browser tool:
+- `web-browser`: query Google Search, scrape the top N URLs from the results, and returns their cleaned content as Markdown.
+  - Parameters: 
+    - `query`: Search term or URL
+    - `max_results`: Maximum number of search results to scrape
 
-## Configuration
+### Resources and Prompts
 
-[TODO: Add configuration details specific to your implementation]
+The server does not provide any resources and prompts.
+
+## 🛠️ Configuration
+
+## Prerequisites
+
+- macOS or Windows
+- The latest version of Claude Desktop installed
+- **uvx** 2.0.0 or higher (`uvx --version` to check)
+- [Apify API Token](https://docs.apify.com/platform/integrations/api#api-token) (`APIFY_API_TOKEN`) 
 
 ## Quickstart
 
@@ -34,23 +45,6 @@ The server implements one tool:
 
 On MacOS: `~/Library/Application\ Support/Claude/claude_desktop_config.json`
 On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
-
-<details>
-  <summary>Development/Unpublished Servers Configuration</summary>
-  ```
-  "mcpServers": {
-    "mcp-server-rag-web-browser": {
-      "command": "uv",
-      "args": [
-        "--directory",
-        "/home/jirka/apify/mcp-server-rag-web-browser",
-        "run",
-        "mcp-server-rag-web-browser"
-      ]
-    }
-  }
-  ```
-</details>
 
 <details>
   <summary>Published Servers Configuration</summary>
@@ -68,7 +62,36 @@ On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
 
 ## Development
 
+### Local Development
+
+If you're working on the yet unpublished server, you can access the local server via the `uv` command:
+"mcp-server-rag-web-browser": {
+"command": "uv",
+"args": [
+"--directory",
+"~/apify/mcp-server-rag-web-browser",
+"run",
+"mcp-server-rag-web-browser"
+
+<details>
+  <summary>Published Servers Configuration</summary>
+  ```
+  "mcpServers": {
+    "mcp-server-rag-web-browser": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "~/apify/mcp-server-rag-web-browser",
+        "run",
+        "mcp-server-rag-web-browser"
+      ]
+    }
+  }
+  ```
+</details>
+
 ### Building and Publishing
+
 
 To prepare the package for distribution:
 
@@ -96,14 +119,12 @@ Note: You'll need to set PyPI credentials via environment variables or command f
 ### Debugging
 
 Since MCP servers run over stdio, debugging can be challenging. For the best debugging
-experience, we strongly recommend using the [MCP Inspector](https://github.com/modelcontextprotocol/inspector).
-
+experience it is recommend to use the [MCP Inspector](https://github.com/modelcontextprotocol/inspector).
 
 You can launch the MCP Inspector via [`npm`](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) with this command:
 
 ```bash
 npx @modelcontextprotocol/inspector uv --directory /home/jirka/apify/mcp-server-rag-web-browser run mcp-server-rag-web-browser
 ```
-
 
 Upon launching, the Inspector will display a URL that you can access in your browser to begin debugging.

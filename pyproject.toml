@@ -1,16 +1,17 @@
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.poetry]
+[project]
 name = "mcp_server_rag_web_browser"
 version = "0.1.6"
 description = "MCP Server for RAG Web Browser"
-authors = ["Apify Technologies s.r.o. <support@apify.com>"]
-homepage = "https://apify.com"
-license = "Apache-2.0"
+authors = [
+    { name = "Apify Technologies s.r.o.", email = "support@apify.com" }
+]
 readme = "README.md"
-packages = [{ include = "mcp_server_rag_web_browser", from = "src" }]
+license = { file = "LICENSE" }
+homepage = "https://apify.com"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -32,32 +33,30 @@ keywords = [
     "rag",
     "scraper",
 ]
+dependencies = [
+    "python-dotenv>=1.0.1,<2.0.0",
+    "pydantic>=2.10.3,<3.0.0",
+    "mcp>=1.1.0,<2.0.0",
+    "httpx>=0.28.1,<1.0.0",
+]
 
-[tool.poetry.urls]
-"Homepage" = "https://apify.com"
-"Changelog" = "https://github.com/apify/mcp-server-rag-web-browser/blob/master/CHANGELOG.md"
-"Documentation" = "https://github.com/apify/mcp-server-rag-web-browser"
+[project.optional-dependencies]
+dev = [
+    "black>=24.8.0,<25.0.0",
+    "build>=1.2.0,<2.0.0",
+    "mypy>=1.11.0,<2.0.0",
+    "pre-commit>=3.7.0,<4.0.0",
+    "pytest>=8.3.0,<9.0.0",
+    "ruff>=0.5.0,<1.0.0",
+    "setuptools>=70.3.0,<71.0.0",
+]
+
+[project.urls]
+Homepage = "https://apify.com"
+Changelog = "https://github.com/apify/mcp-server-rag-web-browser/blob/master/CHANGELOG.md"
+Documentation = "https://github.com/apify/mcp-server-rag-web-browser"
 "Issue Tracker" = "https://github.com/apify/mcp-server-rag-web-browser/issues"
-"Repository" = "https://github.com/apify/mcp-server-rag-web-browser"
-
-# We use inclusive ordered comparison clauses for external packages intentionally in order to enhance Crawlee's
-# compatibility with external packages. This decision was discussed in detail in the following PR:
-# https://github.com/apify/apify-sdk-python/pull/154.
-[tool.poetry.dependencies]
-python = "^3.10"
-python-dotenv = "^1.0.1"
-pydantic = "^2.10.3"
-mcp = "^1.1.0"
-httpx = "^0.28.1"
-
-[tool.poetry.group.dev.dependencies]
-build = "~1.2.0"
-mypy = "~1.11.0"
-pre-commit = "~3.7.0"
-pytest = "~8.3.0"
-ruff = "~0.5.0"
-setuptools = "~70.3.0"  # setuptools are used by pytest, but not explicitly required
-black = "^24.8.0"
+Repository = "https://github.com/apify/mcp-server-rag-web-browser"
 
 [tool.ruff]
 line-length = 120
@@ -134,7 +133,7 @@ convention = "google"
 max-branches = 18
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"
 plugins = []
 files = ["src"]
 check_untyped_defs = true
@@ -150,13 +149,6 @@ warn_unused_ignores = true
 
 [tool.mypy-sortedcollections]
 ignore_missing_imports = true
-
-[tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
-    "if TYPE_CHECKING:",
-    "assert_never()"
-]
 
 [tool.basedpyright]
 typeCheckingMode = "standard"
