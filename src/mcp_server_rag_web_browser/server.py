@@ -19,7 +19,7 @@ logger = logging.getLogger("apify")
 
 ACTOR_BASE_URL = "https://rag-web-browser.apify.actor/search"  # Base URL from OpenAPI schema
 
-TOOL_SEARCH = "search"
+TOOL_SEARCH = "web-browser"
 MAX_RESULTS = 1
 TIMEOUT = 45
 
@@ -62,11 +62,8 @@ async def list_tools() -> list[Tool]:
     return tools
 
 
-def handle_input_arguments(name: str, arguments: dict | None) -> tuple[str, int]:
+def handle_input_arguments(arguments: dict | None) -> tuple[str, int]:
     """Extract and validate input arguments."""
-    if name != TOOL_SEARCH:
-        raise ValueError(f"Error: Unsupported tool requested: '{name}'. Only {TOOL_SEARCH} is supported.")
-
     if not arguments:
         raise ValueError("Error: No arguments provided. Expected 'query' argument.")
 
@@ -106,17 +103,20 @@ async def handle_call_tool(name: str, arguments: dict | None) -> list[TextConten
     Tools can modify server state and notify clients of changes.
     """
     try:
-        query, max_results = handle_input_arguments(name, arguments)
+        query, max_results = handle_input_arguments(arguments)
     except Exception as e:
         logger.exception("Tool call failed")
         return [TextContent(type="text", text=f"Error: {e!s}")]
 
-    try:
-        response = await call_rag_web_browser(query, max_results)
-        return [TextContent(type="text", text=response)]
-    except Exception as e:
-        logger.exception(e)
-        return [TextContent(type="text", text=f"Error: {e!s}")]
+    if name == TOOL_SEARCH:
+        try:
+            response = await call_rag_web_browser(query, max_results)
+            return [TextContent(type="text", text=response)]
+        except Exception as e:
+            logger.exception("RAG Web Browser failed")
+            return [TextContent(type="text", text=f"Error: {e!s}")]
+    else:
+        raise ValueError(f"Error: Unsupported tool requested: '{name}'. Only {TOOL_SEARCH} is supported.")
 
 
 async def main() -> None:
