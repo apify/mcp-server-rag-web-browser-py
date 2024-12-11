@@ -47,7 +47,7 @@ const PROMPTS = [
             {
                 name: 'maxResults',
                 description: 'The maximum number of top organic Google Search results whose web pages will be extracted',
-                default: 1,
+                description: 'The maximum number of top organic Google Search results whose web pages will be extracted (default: 1)',
                 required: false,
             },
         ],
