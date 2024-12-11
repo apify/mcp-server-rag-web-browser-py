@@ -25,7 +25,7 @@ The RAG Web Browser Actor allows an AI assistant to:
 
 ### Prompts
 
-- *search*: Search phrase or a URL at Google and return crawled web pages as text or Markdown
+- **search**: Search phrase or a URL at Google and return crawled web pages as text or Markdown
   - Arguments:
     - `query` (string, required): Search term or URL
     - `max_results` (number, optional): Maximum number of search results to scrape (default: 1)
