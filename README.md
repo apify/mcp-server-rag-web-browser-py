@@ -83,7 +83,7 @@ Configure Claude Desktop to recognize the MCP server.
     Find and analyze recent research papers about LLMs.
     ```
 
-## Development
+## 👷🏼 Development
 
 ### Local Development
 
