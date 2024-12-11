@@ -1,0 +1,41 @@
+{
+    "root": true,
+    "env": {
+        "browser": true,
+        "es2020": true,
+        "node": true
+    },
+    "extends": [
+        "@apify/eslint-config-ts"
+    ],
+    "parserOptions": {
+        "project": "./tsconfig.json",
+        "ecmaVersion": 2020
+    },
+    "ignorePatterns": [
+        "node_modules",
+        "dist",
+        "**/*.d.ts"
+    ],
+    "plugins": ["import"],
+    "rules": {
+        "import/order": [
+            "error",
+            {
+                "groups": [
+                    ["builtin", "external"],
+                    "internal",
+                    ["parent", "sibling", "index"]
+                ],
+                "newlines-between": "always",
+                "alphabetize": {
+                    "order": "asc",
+                    "caseInsensitive": true
+                }
+            }
+        ],
+        "max-len": ["error", { "code": 120, "ignoreUrls": true, "ignoreStrings": true, "ignoreTemplateLiterals": true }],
+        "@typescript-eslint/space-before-function-paren": "off",
+        "@typescript-eslint/comma-dangle": "off"
+    }
+}

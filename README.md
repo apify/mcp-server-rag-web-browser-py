@@ -1,109 +1,130 @@
-# MCP Server for the RAG Web Browser Actor
+# Model Context Protocol (MCP) Server for the RAG Web Browser Actor 🌐
 
-## Components
+Implementation of an MCP server for the [RAG Web Browser Actor](https://apify.com/apify/rag-web-browser).
+This Actor serves as a web browser for large language models (LLMs) and RAG pipelines, similar to a web search in ChatGPT.
 
-### Resources
+## 🔄 What is model context protocol?
 
-The server implements a simple note storage system with:
-- Custom note:// URI scheme for accessing individual notes
-- Each note resource has a name, description and text/plain mimetype
+The Model Context Protocol (MCP) enables AI applications (and AI agents), such as Claude Desktop, to connect to external tools and data sources.
+MCP is an open protocol that enables secure, controlled interactions between AI applications, AI Agents, and local or remote resources.
 
-### Prompts
+## 🎯 What does this MCP server do?
 
-The server provides a single prompt:
-- summarize-notes: Creates summaries of all stored notes
-  - Optional "style" argument to control detail level (brief/detailed)
-  - Generates prompt combining all current notes with style preference
+The RAG Web Browser Actor allows an AI assistant to:
+- Perform web search, scrape the top N URLs from the results, and return their cleaned content as Markdown
+- Fetch a single URL and return its content as Markdown
+
+## 🧱 Components
 
 ### Tools
 
-The server implements one tool:
-- add-note: Adds a new note to the server
-  - Takes "name" and "content" as required string arguments
-  - Updates server state and notifies clients of resource changes
+The server implements a web browser tool:
+- `web-browser`: query Google Search, scrape the top N URLs from the results, and returns their cleaned content as Markdown.
+  - Parameters:
+    - `query`: Search term or URL
+    - `max_results`: Maximum number of search results to scrape
 
-## Configuration
+### Resources and Prompts
 
-[TODO: Add configuration details specific to your implementation]
+The server does not provide any resources and prompts.
 
-## Quickstart
+## 🛠️ Configuration
+
+### Prerequisites
+
+- MacOS or Windows
+- The latest version of Claude Desktop must be installed (or another MCP client)
+- [Node.js](https://nodejs.org/en) (v18 or higher)
+- [Apify API Token](https://docs.apify.com/platform/integrations/api#api-token) (`APIFY_API_TOKEN`)
 
 ### Install
 
 #### Claude Desktop
 
-On MacOS: `~/Library/Application\ Support/Claude/claude_desktop_config.json`
-On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
+Configure Claude Desktop to recognize the MCP server.
 
-<details>
-  <summary>Development/Unpublished Servers Configuration</summary>
-  ```
-  "mcpServers": {
-    "mcp-server-rag-web-browser": {
-      "command": "uv",
-      "args": [
-        "--directory",
-        "/home/jirka/apify/mcp-server-rag-web-browser",
-        "run",
-        "mcp-server-rag-web-browser"
-      ]
-    }
-  }
-  ```
-</details>
+1. Open your Claude Desktop configuration and edit the following file:
 
-<details>
-  <summary>Published Servers Configuration</summary>
-  ```
-  "mcpServers": {
-    "mcp-server-rag-web-browser": {
-      "command": "uvx",
-      "args": [
-        "mcp-server-rag-web-browser"
-      ]
+   - On macOS: `~/Library/Application\ Support/Claude/claude_desktop_config.json`
+   - On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
+
+    ```text
+    "mcpServers": {
+      "mcp-server-rag-web-browser": {
+        "command": "npx",
+        "args": [
+          "/path/to/mcp-server-rag-web-browser/build/index.js"
+        ]
+        "env": {
+           "APIFY-API-TOKEN": "your-apify-api-token"
+        }
+      }
     }
-  }
-  ```
-</details>
+    ```
+
+2. Restart Claude Desktop
+
+    - Fully quit Claude Desktop (ensure it’s not just minimized or closed).
+    - Restart Claude Desktop.
+    - Look for the 🔌 icon to confirm that the Exa server is connected.
+
+3. Examples
+
+    You can ask Claude to perform web searches, such as:
+    ```text
+    What is an MCP server and how can it be used?
+    What is an LLM, and what are the recent news updates?
+    Find and analyze recent research papers about LLMs.
+    ```
 
 ## Development
 
-### Building and Publishing
+### Local Development
 
-To prepare the package for distribution:
+If you're working on an unpublished server, you can access the local server via the following command:
 
-1. Sync dependencies and update lockfile:
-```bash
-uv sync
+```text
+"mcpServers": {
+    "mcp-server-rag-web-browser": {
+      "command": "/path/to/mcp-server-rag-web-browser/build/index.js",
+    }
+    "env": {
+        "APIFY-API-TOKEN": "your-apify-api-token"
+    }
+}
 ```
 
-2. Build package distributions:
+### Local client
+
+To test the server locally, you can use `example_client`:
+
 ```bash
-uv build
+node build/example_client.js
 ```
 
-This will create source and wheel distributions in the `dist/` directory.
-
-3. Publish to PyPI:
-```bash
-uv publish
-```
-
-Note: You'll need to set PyPI credentials via environment variables or command flags:
-- Token: `--token` or `UV_PUBLISH_TOKEN`
-- Or username/password: `--username`/`UV_PUBLISH_USERNAME` and `--password`/`UV_PUBLISH_PASSWORD`
+The script will start the MCP server, fetch available tools, and then call the `web-browser` tool with a query.
 
 ### Debugging
 
-Since MCP servers run over stdio, debugging can be challenging. For the best debugging
-experience, we strongly recommend using the [MCP Inspector](https://github.com/modelcontextprotocol/inspector).
+Call the RAG Web Browser Actor to test it:
 
+```bash
+APIFY_API_TOKEN=your-apify-api-token node build/example_call_web_browser.js
+````
+
+Since MCP servers operate over standard input/output (stdio), debugging can be challenging.
+For the best debugging experience, use the [MCP Inspector](https://github.com/modelcontextprotocol/inspector).
+
+Build the mcp-server-rag-web-browser package:
+
+```bash
+npm run build
+```
 
 You can launch the MCP Inspector via [`npm`](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) with this command:
 
 ```bash
-npx @modelcontextprotocol/inspector uv --directory /home/jirka/apify/mcp-server-rag-web-browser run mcp-server-rag-web-browser
+npx @modelcontextprotocol/inspector node ~/apify/mcp-server-rag-web-browser/build/index.js APIFY_API_TOKEN=your-apify-api-token
 ```
-
 
 Upon launching, the Inspector will display a URL that you can access in your browser to begin debugging.
