@@ -18,13 +18,19 @@ The RAG Web Browser Actor allows an AI assistant to:
 
 ### Tools
 
-The server implements a web browser tool:
-- `web-browser`: query Google Search, scrape the top N URLs from the results, and returns their cleaned content as Markdown.
-  - Parameters:
-    - `query`: Search term or URL
-    - `max_results`: Maximum number of search results to scrape
+- **search**: Query Google Search, scrape the top N URLs from the results, and returns their cleaned content as Markdown.
+  - Arguments:
+    - `query` (string, required): Search term or URL
+    - `max_results` (number, optional): Maximum number of search results to scrape (default: 1)
 
-### Resources and Prompts
+### Prompts
+
+- *search*: Search phrase or a URL at Google and return crawled web pages as text or Markdown
+  - Arguments:
+    - `query` (string, required): Search term or URL
+    - `max_results` (number, optional): Maximum number of search results to scrape (default: 1)
+
+### Resources
 
 The server does not provide any resources and prompts.
 
@@ -53,7 +59,7 @@ Configure Claude Desktop to recognize the MCP server.
       "mcp-server-rag-web-browser": {
         "command": "npx",
         "args": [
-          "/path/to/mcp-server-rag-web-browser/build/index.js"
+          "/path/to/mcp-server-rag-web-browser/build/index.js",
         ]
         "env": {
            "APIFY-API-TOKEN": "your-apify-api-token"
@@ -102,7 +108,7 @@ To test the server locally, you can use `example_client`:
 node build/example_client.js
 ```
 
-The script will start the MCP server, fetch available tools, and then call the `web-browser` tool with a query.
+The script will start the MCP server, fetch available tools, and then call the `search` tool with a query.
 
 ### Debugging
 
