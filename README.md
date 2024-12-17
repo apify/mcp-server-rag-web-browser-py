@@ -3,6 +3,8 @@
 Implementation of an MCP server for the [RAG Web Browser Actor](https://apify.com/apify/rag-web-browser).
 This Actor serves as a web browser for large language models (LLMs) and RAG pipelines, similar to a web search in ChatGPT.
 
+<a href="https://glama.ai/mcp/servers/sr8xzdi3yv"><img width="380" height="200" src="https://glama.ai/mcp/servers/sr8xzdi3yv/badge" alt="mcp-server-rag-web-browser MCP server" /></a>
+
 ## 🔄 What is model context protocol?
 
 The Model Context Protocol (MCP) enables AI applications (and AI agents), such as Claude Desktop, to connect to external tools and data sources.
