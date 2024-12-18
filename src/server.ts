@@ -46,8 +46,8 @@ const PROMPTS = [
             },
             {
                 name: 'maxResults',
-                description: 'The maximum number of top organic Google Search results whose web pages' +
-                    ' will be extracted (default: 1)',
+                description: 'The maximum number of top organic Google Search results whose web pages'
+                    + ' will be extracted (default: 1)',
                 required: false,
             },
         ],
@@ -80,8 +80,8 @@ export class RagWebBrowserServer {
 
     private async callRagWebBrowser(query: string, maxResults: number): Promise<string> {
         if (!APIFY_API_TOKEN) {
-            throw new Error('APIFY_API_TOKEN is required but not set. ' +
-                'Please set it in your environment variables or pass it as a command-line argument.');
+            throw new Error('APIFY_API_TOKEN is required but not set. '
+                + 'Please set it in your environment variables or pass it as a command-line argument.');
         }
 
         const queryParams = new URLSearchParams({

@@ -18,6 +18,8 @@
     "lint:fix": "eslint ./src --ext .ts --fix"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.33.1",
+    "@anthropic-ai/tokenizer": "^0.0.4",
     "@modelcontextprotocol/sdk": "0.6.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
