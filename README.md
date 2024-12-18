@@ -45,6 +45,26 @@ The server does not provide any resources and prompts.
 
 ### Install
 
+Follow the steps below to set up and run the server on your local machine:
+First, clone the repository using the following command:
+
+```bash
+git clone git@github.com:apify/mcp-server-rag-web-browser.git
+```
+
+Navigate to the project directory and install the required dependencies:
+
+```bash
+cd mcp-server-rag-web-browser
+npm install
+```
+
+Before running the server, you need to build the project:
+
+```bash
+npm run build
+```
+
 #### Claude Desktop
 
 Configure Claude Desktop to recognize the MCP server.
@@ -87,28 +107,24 @@ Configure Claude Desktop to recognize the MCP server.
 
 ### Local Development
 
-If you're working on an unpublished server, you can access the local server via the following command:
+### Simple local client (stdio)
 
-```text
-"mcpServers": {
-    "mcp-server-rag-web-browser": {
-      "command": "/path/to/mcp-server-rag-web-browser/build/index.js",
-    }
-    "env": {
-        "APIFY-API-TOKEN": "your-apify-api-token"
-    }
-}
-```
-
-### Local client
-
-To test the server locally, you can use `example_client`:
+To test the server locally, you can use `example_client_stdio.ts`:
 
 ```bash
-node build/example_client.js
+node build/example_client_stdio.js
 ```
 
 The script will start the MCP server, fetch available tools, and then call the `search` tool with a query.
+
+## Chat local client (stdio)
+
+To run simple chat client, you can use `example_chat_stdio.ts`:
+
+```bash
+node build/example_chat_stdio.js
+```
+Here you can interact with the server using the chat interface.
 
 ### Debugging
 
