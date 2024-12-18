@@ -17,7 +17,7 @@ import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
 // Load environment variables from .env file
-dotenv.config();
+dotenv.config({ path: '../.env' });
 
 const argToken = process.argv.find((arg) => arg.startsWith('APIFY_API_TOKEN='))?.split('=')[1];
 const APIFY_API_TOKEN = process.env.APIFY_API_TOKEN || argToken;
